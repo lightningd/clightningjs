@@ -7,3 +7,5 @@ class RpcMethod {
     this.main = () => {return {}};
   }
 }
+
+module.exports = RpcMethod;

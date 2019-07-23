@@ -61,6 +61,10 @@ class Plugin {
     return {};
   }
 
+  addHook (name, callback) {
+    this.hooks[name] = callback;
+  }
+
   addMethod (name, callback, usage, description, longDescription) {
     if (!name || !callback) {
       throw new Error("You need to pass at least a name and a callback to register a method");

@@ -1,5 +1,8 @@
+const EventEmitter = require('events');
 const RpcMethod = require('./method.js');
 const RpcWrapper = require('./rpc.js');
+
+class Notification extends EventEmitter {};
 
 class Plugin {
   constructor () {
@@ -7,11 +10,7 @@ class Plugin {
     this.options = {};
     // RpcMethods
     this.methods = [];
-    // strings
-    this.subscriptions = [];
-    // strings
-    this.hookSubscriptions = [];
-    // name: callback
+    // name: Notification()
     this.notifications = {};
     // name: callback
     this.hooks = {};
@@ -29,6 +28,14 @@ class Plugin {
         description: this.options[name].description
       });
     }
+    let notifs = [];
+    for (let name in this.notifications) {
+      notifs.push(name);
+    }
+    let hooks = [];
+    for (let name in this.hooks) {
+      hooks.push(name);
+    }
     return {
       options: opts,
       rpcmethods: this.methods.map(function (method) {
@@ -39,8 +46,8 @@ class Plugin {
           long_description: method.longDescription
         }
       }),
-      subscriptions: this.subscriptions,
-      hooks: this.hooks
+      subscriptions: notifs,
+      hooks: hooks
     }
   }
 
@@ -75,6 +82,10 @@ class Plugin {
     };
   }
 
+  subscribe (name) {
+    this.notifications[name] = new Notification();
+  }
+
   writeJsonrpcResponse (fd, result, id) {
     const payload = {
       jsonrpc: '2.0',
@@ -105,7 +116,7 @@ class Plugin {
           continue;
         }
         if (!msg.id && msg.method in this.notifications) {
-          this.notifications[msg.method](msg.params);
+          this.notifications[msg.method].emit(msg.method, msg.params);
         }
         if (msg.method === 'getmanifest') {
           this.writeJsonrpcResponse(process.stdout, this._getmanifest(msg.params), msg.id);

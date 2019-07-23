@@ -12,8 +12,8 @@ function sayHello(params) {
   }
 }
 
-function sayBye(params) {
-  return 'Bye bye ' + test.options['byename'].value;
+async function sayBye(params) {
+  return Promise.resolve('Bye bye ' + test.options['byename'].value);
 }
 
 test.addOption('byename', 'continuum', 'The name of whow I should say bye to', 'string');

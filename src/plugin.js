@@ -121,7 +121,9 @@ class Plugin {
         }
         this.methods.forEach((m) => {
           if (m.name === msg.method) {
-            this.writeJsonrpcResponse(process.stdout, m.main(msg.params), msg.id);
+            Promise.resolve(m.main(msg.params)).then((response) => {
+              this.writeJsonrpcResponse(process.stdout, response, msg.id);
+            });
           }
         });
       }

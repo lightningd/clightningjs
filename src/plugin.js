@@ -3,25 +3,34 @@ const RpcWrapper = require('./rpc.js');
 
 class Plugin {
   constructor () {
-    // { name: "", type: "", default: "", description: "" }
-    this.options = [];
+    // name: { type: "", default: "", description: "" }
+    this.options = {};
     // RpcMethods
     this.methods = [];
     // strings
     this.subscriptions = [];
     // strings
     this.hookSubscriptions = [];
-    // { name: callback }
-    this.notifications = [];
-    // { name: callback }
-    this.hooks = [];
+    // name: callback
+    this.notifications = {};
+    // name: callback
+    this.hooks = {};
     this.rpc = undefined;
   }
 
   // The getmanifest call, all about us !
   _getmanifest (params) {
+    let opts = [];
+    for (let name in this.options) {
+      opts.push({
+        name: name,
+        type: this.options[name].type,
+        default: this.options[name].default,
+        description: this.options[name].description
+      });
+    }
     return {
-      options: this.options,
+      options: opts,
       rpcmethods: this.methods.map(function (method) {
         return {
           name: method.name,
@@ -39,7 +48,10 @@ class Plugin {
   _init (params) {
     const socketPath = params.configuration['lightning-dir'] + params.configuration['rpc-file'];
     this.rpc = new RpcWrapper(socketPath);
-    return {}
+    for (let opt in params.options) {
+      this.options[opt].value = params.options[opt];
+    }
+    return {};
   }
 
   addMethod (name, callback, usage, description, longDescription) {
@@ -55,12 +67,12 @@ class Plugin {
     if (!name || !defaultValue || !description) {
       throw new Error("You need to pass at least a name, default value and description for the option");
     }
-    this.options.push({
-      name: name,
+    this.options[name] = {
       default: defaultValue,
       description: description,
-      type: type || "string"
-    });
+      type: type || "string",
+      value: defaultValue
+    };
   }
 
   writeJsonrpcResponse (fd, result, id) {

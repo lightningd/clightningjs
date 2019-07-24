@@ -16,6 +16,12 @@ async function sayBye(params) {
   return Promise.resolve('Bye bye ' + test.options['byename'].value);
 }
 
+test.testRpc = async function (params) {
+  const method = params[0] || 'getinfo';
+  const response = await test.rpc.call(method);
+  return response;
+}
+
 function useLessBackup(params) {
   fs.writeFile('logDb', params.writes, () => {});
   return true;
@@ -31,4 +37,5 @@ test.addHook('db_write', useLessBackup);
 test.addOption('byename', 'continuum', 'The name of whow I should say bye to', 'string');
 test.addMethod('hello', sayHello, 'name', 'If you launch me, I\'ll great you !');
 test.addMethod('bye', sayBye, '', 'If you launch me, I\'ll say good bye');
+test.addMethod('testrpc', test.testRpc, 'method', '', 'Test the RPC interface');
 test.start();

@@ -4,7 +4,7 @@
 ## Usage
 ### Methods
 You can add a method to the `lightningd` interface, either synchronously :
-```
+```javascript
 #!/usr/bin/node
 const Plugin = require('plugin.js');
 
@@ -22,7 +22,7 @@ helloPlugin.addMethod('hello', sayHello, 'name', 'If you launch me, I\'ll great 
 helloPlugin.start();
 ```
 Or asynchronously :
-```
+```javascript
 #!/usr/bin/node
 const Plugin = require('plugin.js');
 
@@ -38,7 +38,7 @@ helloPlugin.start();
   
 ### Startup options
 You can add a startup option to `lightningd` and make a method behave depending on it:
-```
+```javascript
 #!/usr/bin/node
 const Plugin = require('plugin.js');
 
@@ -55,7 +55,7 @@ helloPlugin.start();
   
 ### Subscribe to notifications
 You can subscribe to `lightningd` notifications, the plugin will emit events upon their reception :
-```
+```javascript
 #!/usr/bin/node
 const fs = require('fs');
 const Plugin = require('plugin.js');
@@ -72,7 +72,7 @@ listenPlugin.start();
   
 ### Subscribe to hooks
 You can subscribe to `lightningd` hooks :
-```
+```javascript
 #!/usr/bin/node
 const fs = require('fs');
 const Plugin = require('plugin.js');

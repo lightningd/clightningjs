@@ -1,7 +1,5 @@
 #!/usr/bin/node
-
 const fs = require('fs');
-
 const Plugin = require('../src/plugin.js');
 
 const test = new Plugin();

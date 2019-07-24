@@ -1,12 +1,21 @@
 # clightningjs
 [C-lightning](https://github.com/ElementsProject/lightning) [plugin](https://lightning.readthedocs.io/PLUGINS.html) library for nodejs, without high voltage sign  
   
+## Installation
+```bash
+npm install clightningjs --save
+```
+If you have a running Bitcoin testnet node you can try out the test plugin at [test/plugin.js](test/plugin.js) :
+```bash
+npm test
+```
+  
 ## Usage
 ### Methods
 You can add a method to the `lightningd` interface, either synchronously :
 ```javascript
 #!/usr/bin/node
-const Plugin = require('plugin.js');
+const Plugin = require('clightningjs');
 
 const helloPlugin = new Plugin();
 
@@ -24,7 +33,7 @@ helloPlugin.start();
 Or asynchronously :
 ```javascript
 #!/usr/bin/node
-const Plugin = require('plugin.js');
+const Plugin = require('clightningjs');
 
 const helloPlugin = new Plugin();
 
@@ -40,7 +49,7 @@ helloPlugin.start();
 You can add a startup option to `lightningd` and make a method behave depending on it:
 ```javascript
 #!/usr/bin/node
-const Plugin = require('plugin.js');
+const Plugin = require('clightningjs');
 
 const helloPlugin = new Plugin();
 
@@ -58,7 +67,7 @@ You can subscribe to `lightningd` notifications, the plugin will emit events upo
 ```javascript
 #!/usr/bin/node
 const fs = require('fs');
-const Plugin = require('plugin.js');
+const Plugin = require('clightningjs');
 
 const listenPlugin = new Plugin();
 
@@ -75,7 +84,7 @@ You can subscribe to `lightningd` hooks :
 ```javascript
 #!/usr/bin/node
 const fs = require('fs');
-const Plugin = require('plugin.js');
+const Plugin = require('clightningjs');
 
 const dbBackup = new Plugin();
 

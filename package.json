@@ -1,0 +1,28 @@
+{
+  "name": "clightningjs",
+  "version": "0.0.1",
+  "description": "Plugins for C-lightning, a Lightning Network implementation. Also contains an RPC wrapper.",
+  "main": "src/plugin.js",
+  "scripts": {
+    "test": "lightningd --testnet --lightning-dir=$PWD/test-lightning-dir --plugin=$PWD/test/plugin.js # You can try the test plugin commands with the CLI"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/darosior/clightningjs.git"
+  },
+  "keywords": [
+    "lightning-network",
+    "lightning",
+    "c-lightning",
+    "clightning",
+    "plugin",
+    "rpc",
+    "bitcoin"
+  ],
+  "author": "Antoine Poinsot (darosior)",
+  "license": "BSD-3-Clause-Clear",
+  "bugs": {
+    "url": "https://github.com/darosior/clightningjs/issues"
+  },
+  "homepage": "https://github.com/darosior/clightningjs#readme"
+}

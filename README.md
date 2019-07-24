@@ -12,7 +12,7 @@ npm test
   
 ## Usage
 ### Methods
-You can add a method to the `lightningd` interface, either synchronously :
+A method should take a JSON array as parameter and return either a valid JSON-encodable value :
 ```javascript
 #!/usr/bin/node
 const Plugin = require('clightningjs');
@@ -30,7 +30,7 @@ function sayHello(params) {
 helloPlugin.addMethod('hello', sayHello, 'name', 'If you launch me, I\'ll great you !');
 helloPlugin.start();
 ```
-Or asynchronously :
+Or a promise :
 ```javascript
 #!/usr/bin/node
 const Plugin = require('clightningjs');
@@ -62,7 +62,7 @@ helloPlugin.addMethod('bye', sayBye, '', 'If you launch me, I\'ll say good bye')
 helloPlugin.start();
 ```
   
-### Subscribe to notifications
+### Notifications subscription
 You can subscribe to `lightningd` notifications, the plugin will emit events upon their reception :
 ```javascript
 #!/usr/bin/node
@@ -79,7 +79,7 @@ listenPlugin.notifications.warning.on('warning', (params) => {
 listenPlugin.start();
 ```
   
-### Subscribe to hooks
+### Hooks subscription
 You can subscribe to `lightningd` hooks :
 ```javascript
 #!/usr/bin/node

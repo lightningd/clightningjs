@@ -1,4 +1,5 @@
 const net = require('net');
+const fs = require('fs');
 
 class RpcWrapper {
   constructor (socketPath) {
@@ -13,13 +14,12 @@ class RpcWrapper {
     // Reconnect on timeout
     this.rpc.on('timeout', () => {
       this.rpc.destroy();
-      this.rpc = net.createConnection({ path: this.socketPath });
+      this.restoreSocket();
     });
     // Handle errors
     this.rpc.on('error', (e) => {
       if (this.maxErrors > 0) {
-        this.rpc.destroy();
-        this.restoreSocketOnError();
+        this.restoreSocket();
       } else {
         throw e;
       }
@@ -28,14 +28,19 @@ class RpcWrapper {
       if (hadError === true) {
         if (this.maxErrors > 0) {
           this.rpc.destroy();
-          this.restoreSocketOnError();
+          this.restoreSocket();
         } else {
           throw new Error('An unexpected failure caused the socket ' + this.socketPath + ' to close.');
         }
       } else {
         this.rpc.destroy();
-        this.restoreSocketOnError();
+        this.restoreSocket();
       }
+    });
+    this.rpc.on('error', (e) => {
+      fs.writeFile('log', e, () => {});
+      this.rpc.destroy();
+      this.restoreSocket();
     });
   }
 
@@ -61,8 +66,9 @@ class RpcWrapper {
     return this.send(JSON.stringify(request)).then((data) => JSON.parse(data).result);
   }
 
-  restoreSocketOnError () {
+  restoreSocket () {
     this.rpc.destroy();
+    this.rpc = net.createConnection({ path: this.socketPath });
     this.maxErrors--;
   }
 }

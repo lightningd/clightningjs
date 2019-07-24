@@ -1,4 +1,5 @@
 const EventEmitter = require('events');
+const path = require('path');
 const RpcMethod = require('./method.js');
 const RpcWrapper = require('./rpc.js');
 
@@ -53,7 +54,7 @@ class Plugin {
 
   // We are almost done !
   _init (params) {
-    const socketPath = params.configuration['lightning-dir'] + params.configuration['rpc-file'];
+    const socketPath = path.join(params.configuration['lightning-dir'], params.configuration['rpc-file']);
     this.rpc = new RpcWrapper(socketPath);
     for (let opt in params.options) {
       this.options[opt].value = params.options[opt];

@@ -14,7 +14,7 @@ npm test
 ### Methods
 A method should take a JSON array as parameter and return either a valid JSON-encodable value :
 ```javascript
-#!/usr/bin/node
+#!/usr/bin/env node
 const Plugin = require('clightningjs');
 
 const helloPlugin = new Plugin();
@@ -32,7 +32,7 @@ helloPlugin.start();
 ```
 Or a promise :
 ```javascript
-#!/usr/bin/node
+#!/usr/bin/env node
 const Plugin = require('clightningjs');
 
 const helloPlugin = new Plugin();
@@ -48,7 +48,7 @@ helloPlugin.start();
 ### Startup options
 You can add a startup option to `lightningd` and make a method behave depending on it:
 ```javascript
-#!/usr/bin/node
+#!/usr/bin/env node
 const Plugin = require('clightningjs');
 
 const helloPlugin = new Plugin();
@@ -65,7 +65,7 @@ helloPlugin.start();
 ### Notifications subscription
 You can subscribe to `lightningd` notifications, the plugin will emit events upon their reception :
 ```javascript
-#!/usr/bin/node
+#!/usr/bin/env node
 const fs = require('fs');
 const Plugin = require('clightningjs');
 
@@ -82,7 +82,7 @@ listenPlugin.start();
 ### Hooks subscription
 You can subscribe to `lightningd` hooks :
 ```javascript
-#!/usr/bin/node
+#!/usr/bin/env node
 const fs = require('fs');
 const Plugin = require('clightningjs');
 
@@ -95,6 +95,25 @@ function useLessBackup(params) {
 
 test.addHook('db_write', useLessBackup);
 test.start();
+```
+  
+## Misc
+You can restrict RPC control over your plugin with
+```javascript
+// myStaticPlugin cannot be stopped by RPC
+const myStaticPlugin = new Plugin({ dynamic: false });
+```
+  
+You can log to `lightningd` logs with `myPlugin.log(message, logLevel)`, with the level
+defaulting to 'info'.
+  
+You can do some stuff at initialization (just before responding to the `init` message):
+```javascript
+const myPlugin = new Plugin();
+// "params" contains the params passed by `lightningd` along with the `init` message
+myPlugin.onInit= function (params) {
+	myPlugin.log('I\'m going to be initialized !!');
+};
 ```
   
 ## More about C-lightning plugins

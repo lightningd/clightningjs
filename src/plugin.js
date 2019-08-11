@@ -63,6 +63,7 @@ class Plugin {
       this.options[opt].value = params.options[opt];
     }
     this.startup = params.configuration['startup'];
+    this.onInit(params);
     return {};
   }
 
@@ -89,6 +90,9 @@ class Plugin {
       type: type || "string",
       value: defaultValue
     };
+  }
+
+  onInit (params) {
   }
 
   log (message, level) {

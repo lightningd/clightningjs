@@ -32,6 +32,10 @@ function log(params) {
   return '';
 }
 
+test.onInit = function (params) {
+  test.log('Test plugin initialized !');
+}
+
 test.subscribe('warning');
 test.notifications.warning.on('warning', (params) => {
   fs.writeFile('log', params.warning.log, () => {});

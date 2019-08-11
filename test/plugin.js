@@ -2,7 +2,7 @@
 const fs = require('fs');
 const Plugin = require('../src/plugin.js');
 
-const test = new Plugin();
+const test = new Plugin({dynamic: false});
 
 function sayHello(params) {
   if (!params || params.length === 0) {

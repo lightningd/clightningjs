@@ -6,7 +6,7 @@ const RpcWrapper = require('./rpc.js');
 class Notification extends EventEmitter {};
 
 class Plugin {
-  constructor () {
+  constructor (dynamic) {
     // name: { type: "", default: "", description: "" }
     this.options = {};
     // RpcMethods
@@ -16,6 +16,8 @@ class Plugin {
     // name: callback
     this.hooks = {};
     this.rpc = undefined;
+    // Plugins are dynamic by default
+    this.dynamic = dynamic || true;
   }
 
   // The getmanifest call, all about us !
@@ -48,7 +50,8 @@ class Plugin {
         }
       }),
       subscriptions: notifs,
-      hooks: hooks
+      hooks: hooks,
+      dynamic: this.dynamic,
     }
   }
 
@@ -59,6 +62,7 @@ class Plugin {
     for (let opt in params.options) {
       this.options[opt].value = params.options[opt];
     }
+    this.startup = params.configuration['startup'];
     return {};
   }
 

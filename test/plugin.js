@@ -27,6 +27,11 @@ function useLessBackup(params) {
   return true;
 }
 
+function log(params) {
+  test.log('Testing logs', params[0]);
+  return '';
+}
+
 test.subscribe('warning');
 test.notifications.warning.on('warning', (params) => {
   fs.writeFile('log', params.warning.log, () => {});
@@ -38,4 +43,5 @@ test.addOption('byename', 'continuum', 'The name of whow I should say bye to', '
 test.addMethod('hello', sayHello, 'name', 'If you launch me, I\'ll great you !');
 test.addMethod('bye', sayBye, '', 'If you launch me, I\'ll say good bye');
 test.addMethod('testrpc', test.testRpc, 'method', '', 'Test the RPC interface');
+test.addMethod('testlog', log, 'level', '');
 test.start();

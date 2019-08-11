@@ -87,8 +87,24 @@ class Plugin {
     };
   }
 
+  log (message, level) {
+    level = level || 'info';
+    message.split('\n').forEach((line) => {
+      this.writeJsonrpcNotification(process.stdout, 'log', {level: level, message: line});
+    });
+  }
+
   subscribe (name) {
     this.notifications[name] = new Notification();
+  }
+
+  writeJsonrpcNotification (fd, method, params) {
+    const payload = {
+      jsonrpc: '2.0',
+      method: method,
+      params: params,
+    }
+    fd.write(JSON.stringify(payload));
   }
 
   writeJsonrpcResponse (fd, result, id) {
@@ -109,11 +125,7 @@ class Plugin {
         try {
           msg = JSON.parse(chunk);
         } catch (e) {
-          // Don't crash because of noise ...
-          continue;
-        }
-        if (!msg) {
-          // ... just wait for another line
+          // Don't crash because of noise
           continue;
         }
         // JSONRPC2 sanity checks

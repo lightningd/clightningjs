@@ -97,8 +97,13 @@ class Plugin {
 
   log (message, level) {
     level = level || 'info';
+    if (!message || typeof message !== 'string') {
+      throw new Error('You need to specify a string to write on lightningd\'s logs.');
+    }
     message.split('\n').forEach((line) => {
-      this.writeJsonrpcNotification(process.stdout, 'log', {level: level, message: line});
+      if (line) {
+        this.writeJsonrpcNotification(process.stdout, 'log', {level: level, message: line});
+      }
     });
   }
 

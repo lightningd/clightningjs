@@ -1,4 +1,5 @@
-#!/usr/bin/node
+#!/usr/bin/env node
+const assert = require('assert');
 const fs = require('fs');
 const Plugin = require('../src/plugin.js');
 
@@ -34,6 +35,15 @@ function log(params) {
 
 test.onInit = function (params) {
   test.log('Test plugin initialized !');
+  /* Test you cannot send empty logs */
+  let error = '';
+  try {
+    test.log(null);
+  } catch (e) {
+    error = e.message;
+  }
+  test.log(error);
+  assert(error != '');
 }
 
 test.subscribe('warning');

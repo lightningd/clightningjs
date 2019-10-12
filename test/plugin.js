@@ -42,8 +42,8 @@ test.onInit = function (params) {
   } catch (e) {
     error = e.message;
   }
-  test.log(error);
   assert(error != '');
+  test.log(error);
 }
 
 test.subscribe('warning');

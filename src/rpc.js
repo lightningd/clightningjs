@@ -9,7 +9,7 @@ class RpcWrapper {
     this.socketPath = socketPath;
     this.rpc = net.createConnection({ path: this.socketPath });
     this.id = 0;
-    this.maxErrors = 10;
+    this.allowedErrors = 10;
 
     // Reconnect on timeout
     this.rpc.on('timeout', () => {
@@ -18,14 +18,14 @@ class RpcWrapper {
     });
     // Handle errors
     this.rpc.on('error', (e) => {
-      if (this.maxErrors > 0) {
+      if (this.allowedErrors > 0) {
         this.restoreSocket();
       } else {
         throw e;
       }
     });
     this.rpc.on('close', (hadError) => {
-      if (hadError === true && this.maxErrors <= 0) {
+      if (hadError === true && this.allowedErrors <= 0) {
           throw new Error('An unexpected failure caused the socket ' + this.socketPath + ' to close.');
       } else {
         this.rpc.destroy();
@@ -37,6 +37,10 @@ class RpcWrapper {
       this.rpc.destroy();
       this.restoreSocket();
     });
+
+    // Allow the fd connection to error if ran a long period of time
+    // Allow six by hour (high probability to be wrong here)
+    setInterval(() => this.allowedErrors++, 1000 * 60 * 30);
   }
 
   async _jsonRpcRequest (data) {
@@ -64,7 +68,7 @@ class RpcWrapper {
   restoreSocket () {
     this.rpc.destroy();
     this.rpc = net.createConnection({ path: this.socketPath });
-    this.maxErrors--;
+    this.allowedErrors--;
   }
 }
 

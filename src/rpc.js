@@ -25,13 +25,8 @@ class RpcWrapper {
       }
     });
     this.rpc.on('close', (hadError) => {
-      if (hadError === true) {
-        if (this.maxErrors > 0) {
-          this.rpc.destroy();
-          this.restoreSocket();
-        } else {
+      if (hadError === true && this.maxErrors <= 0) {
           throw new Error('An unexpected failure caused the socket ' + this.socketPath + ' to close.');
-        }
       } else {
         this.rpc.destroy();
         this.restoreSocket();
@@ -44,18 +39,17 @@ class RpcWrapper {
     });
   }
 
-  send (data) {
-    return new Promise( (resolve, reject) => {
+  async _jsonRpcRequest (data) {
+    return new Promise((resolve, reject) => {
       this.rpc.write(data);
-
       this.rpc.once('data', (d) => {
         resolve(d);
       });
     });
   }
 
-  call (_method, _params) {
-    _params = _params || {};
+  async call (_method, _params) {
+    _params = _params || {};
     const request = {
       jsonrpc: '2.0',
       id: this.id,
@@ -63,7 +57,8 @@ class RpcWrapper {
       params: _params
     };
 
-    return this.send(JSON.stringify(request)).then((data) => JSON.parse(data).result);
+    const response = await this._jsonRpcRequest(JSON.stringify(request))
+    return JSON.parse(response).result;
   }
 
   restoreSocket () {

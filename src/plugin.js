@@ -81,57 +81,6 @@ class Plugin {
     return {};
   }
 
-  // A hook is a notification which needs a response from our (plugin) side
-  addHook (name, callback) {
-    this.hooks[name] = callback;
-  }
-
-  // Add a fresh JSONRPC method accessible from lightningd
-  addMethod (name, callback, usage, description, longDescription) {
-    if (!name || !callback) {
-      throw new Error("You need to pass at least a name and a callback to register a method");
-    }
-    const method = new RpcMethod(name, usage, description, longDescription);
-    method.main = callback;
-    this.methods.push(method);
-  }
-
-  // Add a startup option to lightningd
-  addOption (name, defaultValue, description, type) {
-    if (!name || !defaultValue || !description) {
-      throw new Error("You need to pass at least a name, default value and description for the option");
-    }
-    this.options[name] = {
-      default: defaultValue,
-      description: description,
-      type: type || "string",
-      value: defaultValue
-    };
-  }
-
-  // To be overriden to do something special at startup
-  onInit (params) {
-  }
-
-  // Send logs to lightningd's log
-  log (message, level) {
-    level = level || 'info';
-    if (!message || typeof message !== 'string') {
-      throw new Error('You need to specify a string to write on lightningd\'s logs.');
-    }
-    message.split('\n').forEach((line) => {
-      if (line) {
-        // Note that this is async and not awaited
-        this._writeJsonrpcNotification(process.stdout, 'log', {level: level, message: line});
-      }
-    });
-  }
-
-  // The notifications are notifications that are real notifications :-)
-  subscribe (name) {
-    this.notifications[name] = new Notification();
-  }
-
   async _writeJsonrpcNotification (fd, method, params) {
     const payload = {
       jsonrpc: '2.0',
@@ -152,6 +101,57 @@ class Plugin {
     if (!await this._write(JSON.stringify(payload))) {
       throw new Error("Error while writing JSONRPC response to lightningd");
     }
+  }
+
+  // Add a fresh JSONRPC method accessible from lightningd
+  addMethod (name, callback, usage, description, longDescription) {
+    if (!name || !callback) {
+      throw new Error("You need to pass at least a name and a callback to register a method");
+    }
+    const method = new RpcMethod(name, usage, description, longDescription);
+    method.main = callback;
+    this.methods.push(method);
+  }
+
+  // Add a startup option to lightningd
+  addOption (name, defaultValue, description, type) {
+    if (!name || !defaultValue || !description) {
+      throw new Error("You need to pass at least a name, default value and description for the option");
+    }
+    this.options[name] = {
+      default: defaultValue,
+      description: description,
+      type: type || "string",
+      value: defaultValue
+    };
+  }
+
+  // A hook is a notification which needs a response from our (plugin) side
+  addHook (name, callback) {
+    this.hooks[name] = callback;
+  }
+
+  // The notifications are notifications that are real notifications :-)
+  subscribe (name) {
+    this.notifications[name] = new Notification();
+  }
+
+  // To be overriden to do something special at startup
+  onInit (params) {
+  }
+
+  // Send logs to lightningd's log
+  log (message, level) {
+    level = level || 'info';
+    if (!message || typeof message !== 'string') {
+      throw new Error('You need to specify a string to write on lightningd\'s logs.');
+    }
+    message.split('\n').forEach((line) => {
+      if (line) {
+        // Note that this is async and not awaited
+        this._writeJsonrpcNotification(process.stdout, 'log', {level: level, message: line});
+      }
+    });
   }
 
   // Read from stdin and do what master (not Satoshi, lightningd!!) tells until

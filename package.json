@@ -1,6 +1,6 @@
 {
   "name": "clightningjs",
-  "version": "0.0.4",
+  "version": "0.1.1",
   "description": "Plugins for C-lightning, a Lightning Network implementation. Also contains an RPC wrapper.",
   "main": "src/plugin.js",
   "scripts": {

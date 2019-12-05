@@ -163,9 +163,8 @@ class Plugin {
       try {
         msg = JSON.parse(chunk);
       } catch (e) {
-        this.log(e.message);
-        // Don't crash because of noise
-        continue;
+        this.log(e.message, 'error');
+        throw e;
       }
       // JSONRPC2 sanity checks
       if (!msg || !msg.method || msg.jsonrpc !== '2.0') {

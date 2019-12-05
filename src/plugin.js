@@ -163,7 +163,7 @@ class Plugin {
       try {
         msg = JSON.parse(chunk);
       } catch (e) {
-        console.log(e);
+        this.log(e.message);
         // Don't crash because of noise
         continue;
       }

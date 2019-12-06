@@ -190,8 +190,9 @@ class Plugin {
           continue;
         }
         if (msg.method in this.hooks) {
-          await this._writeJsonrpcResponse(this.hooks[msg.method](msg.params),
-                                          msg.id);
+          Promise.resolve(this.hooks[msg.method](msg.params)).then(async (response) => {
+            await this._writeJsonrpcResponse(response, msg.id);
+          });
           continue;
         }
         this.methods.forEach((m) => {

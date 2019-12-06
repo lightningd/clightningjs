@@ -26,6 +26,13 @@ function releaseHtlc(params) {
   return "OK";
 }
 
+function testMethodPromise(params) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve('Ok'), 1000);
+  });
+}
+
 myWonderfulPlugin.addMethod('releasehtlc', releaseHtlc, '', 'release an HTLC', '.');
+myWonderfulPlugin.addMethod('testpromise', testMethodPromise, '', '', '');
 
 myWonderfulPlugin.start();

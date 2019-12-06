@@ -95,8 +95,8 @@ class Plugin {
   async _writeJsonrpcResponse (fd, result, id) {
     const payload = {
       jsonrpc: '2.0',
-      result: result,
-      id: id
+      id: id,
+      result: result
     };
     if (!await this._write(JSON.stringify(payload))) {
       throw new Error("Error while writing JSONRPC response to lightningd");

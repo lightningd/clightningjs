@@ -81,7 +81,7 @@ class Plugin {
     return {};
   }
 
-  async _writeJsonrpcNotification (fd, method, params) {
+  async _writeJsonrpcNotification (method, params) {
     const payload = {
       jsonrpc: '2.0',
       method: method,
@@ -92,7 +92,7 @@ class Plugin {
     }
   }
 
-  async _writeJsonrpcResponse (fd, result, id) {
+  async _writeJsonrpcResponse (result, id) {
     const payload = {
       jsonrpc: '2.0',
       id: id,
@@ -149,7 +149,7 @@ class Plugin {
     message.split('\n').forEach((line) => {
       if (line) {
         // Note that this is async and not awaited
-        this._writeJsonrpcNotification(process.stdout, 'log', {level: level, message: line});
+        this._writeJsonrpcNotification('log', {level: level, message: line});
       }
     });
   }
@@ -174,27 +174,24 @@ class Plugin {
         this.notifications[msg.method].emit(msg.method, msg.params);
       }
       if (msg.method === 'getmanifest') {
-        await this._writeJsonrpcResponse(process.stdout,
-                                         this._getmanifest(msg.params),
+        await this._writeJsonrpcResponse(this._getmanifest(msg.params),
                                          msg.id);
         continue;
       }
       if (msg.method === 'init') {
-        await this._writeJsonrpcResponse(process.stdout,
-                                         this._init(msg.params),
+        await this._writeJsonrpcResponse(this._init(msg.params),
                                          msg.id);
         continue;
       }
       if (msg.method in this.hooks) {
-        await this._writeJsonrpcResponse(process.stdout,
-                                         this.hooks[msg.method](msg.params),
+        await this._writeJsonrpcResponse(this.hooks[msg.method](msg.params),
                                          msg.id);
         continue;
       }
       this.methods.forEach((m) => {
         if (m.name === msg.method) {
           Promise.resolve(m.main(msg.params)).then((response) => {
-            Promise.resolve(this._writeJsonrpcResponse(process.stdout, response, msg.id));
+            Promise.resolve(this._writeJsonrpcResponse(response, msg.id));
           });
         }
       });

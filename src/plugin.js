@@ -160,41 +160,48 @@ class Plugin {
     let chunk;
     let msg;
     while (chunk = process.stdin.read()) {
-      try {
-        msg = JSON.parse(chunk);
-      } catch (e) {
-        this.log(e.message, 'error');
-        throw e;
-      }
-      // JSONRPC2 sanity checks
-      if (!msg || !msg.method || msg.jsonrpc !== '2.0') {
-        continue;
-      }
-      if (!msg.id && msg.method in this.notifications) {
-        this.notifications[msg.method].emit(msg.method, msg.params);
-      }
-      if (msg.method === 'getmanifest') {
-        await this._writeJsonrpcResponse(this._getmanifest(msg.params),
-                                         msg.id);
-        continue;
-      }
-      if (msg.method === 'init') {
-        await this._writeJsonrpcResponse(this._init(msg.params),
-                                         msg.id);
-        continue;
-      }
-      if (msg.method in this.hooks) {
-        await this._writeJsonrpcResponse(this.hooks[msg.method](msg.params),
-                                         msg.id);
-        continue;
-      }
-      this.methods.forEach((m) => {
-        if (m.name === msg.method) {
-          Promise.resolve(m.main(msg.params)).then((response) => {
-            Promise.resolve(this._writeJsonrpcResponse(response, msg.id));
-          });
+      // Ok so process.stdin.read() can actually return a chunk with multiple
+      // lines.
+      const lines = chunk.split('\n\n');
+      for (const i in lines) {
+        if (!lines[i]) continue;
+        try {
+          msg = JSON.parse(lines[i]);
+        } catch (e) {
+          this.log(e.message, 'error');
+          throw e;
         }
-      });
+        // JSONRPC2 sanity checks
+        if (!msg || !msg.method || msg.jsonrpc !== '2.0') {
+          this.log('Got bad JSONRPC2', 'error');
+          throw new Error("Bad JSONRPC(2)!");
+        }
+        if (!msg.id && msg.method in this.notifications) {
+          this.notifications[msg.method].emit(msg.method, msg.params);
+        }
+        if (msg.method === 'getmanifest') {
+          await this._writeJsonrpcResponse(this._getmanifest(msg.params),
+                                          msg.id);
+          continue;
+        }
+        if (msg.method === 'init') {
+          await this._writeJsonrpcResponse(this._init(msg.params),
+                                          msg.id);
+          continue;
+        }
+        if (msg.method in this.hooks) {
+          await this._writeJsonrpcResponse(this.hooks[msg.method](msg.params),
+                                          msg.id);
+          continue;
+        }
+        this.methods.forEach((m) => {
+          if (m.name === msg.method) {
+            Promise.resolve(m.main(msg.params)).then((response) => {
+              Promise.resolve(this._writeJsonrpcResponse(response, msg.id));
+            });
+          }
+        });
+      }
     }
   }
 

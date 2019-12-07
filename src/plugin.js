@@ -26,11 +26,11 @@ class Plugin {
     // Could have been a fs writing to 1 ?
     if (!process.stdout.write(content)) {
       return new Promise((resolve, reject) => {
-        process.stdout.once('drain', resolve(true));
-        process.stdout.once('error', reject(false));
+        process.stdout.once('drain', resolve());
+        process.stdout.once('error', reject());
       });
     }
-    return Promise.resolve(true);
+    return Promise.resolve();
   }
 
   // The getmanifest call, all about us !
@@ -70,7 +70,8 @@ class Plugin {
 
   // We are almost done ! Lightningd sends this once it receives our manifest.
   _init (params) {
-    const socketPath = path.join(params.configuration['lightning-dir'], params.configuration['rpc-file']);
+    const socketPath = path.join(params.configuration['lightning-dir'],
+                                 params.configuration['rpc-file']);
     this.rpc = new RpcWrapper(socketPath);
     for (let opt in params.options) {
       this.options[opt].value = params.options[opt];
@@ -87,8 +88,13 @@ class Plugin {
       method: method,
       params: params,
     }
-    if (!await this._write(JSON.stringify(payload))) {
-      throw new Error("Error while writing JSONRPC notification to lightningd");
+    const notif = JSON.stringify(payload);
+    try {
+      await this._write(notif);
+    } catch (e) {
+      this.log('Error while writing JSONRPC notification (\''+notif+'\') to lightningd',
+               'error');
+      throw e;
     }
   }
 
@@ -98,15 +104,20 @@ class Plugin {
       id: id,
       result: result
     };
-    if (!await this._write(JSON.stringify(payload))) {
-      throw new Error("Error while writing JSONRPC response to lightningd");
+    const response = JSON.stringify(payload);
+    try {
+      await this._write(response);
+    } catch (e) {
+      this.log('Error while writing JSONRPC response (\''+response+'\') to lightningd',
+               'error');
+      throw e;
     }
   }
 
   // Add a fresh JSONRPC method accessible from lightningd
   addMethod (name, callback, usage, description, longDescription) {
     if (!name || !callback) {
-      throw new Error("You need to pass at least a name and a callback to register a method");
+      throw new Error('You need to pass at least a name and a callback to register a method');
     }
     const method = new RpcMethod(name, usage, description, longDescription);
     method.main = callback;
@@ -116,12 +127,12 @@ class Plugin {
   // Add a startup option to lightningd
   addOption (name, defaultValue, description, type) {
     if (!name || !defaultValue || !description) {
-      throw new Error("You need to pass at least a name, default value and description for the option");
+      throw new Error('You need to pass at least a name, default value and description for the option');
     }
     this.options[name] = {
       default: defaultValue,
       description: description,
-      type: type || "string",
+      type: type || 'string',
       value: defaultValue
     };
   }
@@ -173,7 +184,7 @@ class Plugin {
         // JSONRPC2 sanity checks
         if (!msg || !msg.method || msg.jsonrpc !== '2.0') {
           this.log('Got bad JSONRPC2', 'error');
-          throw new Error("Bad JSONRPC(2)!");
+          throw new Error('Bad JSONRPC(2)!');
         }
         if (!msg.id && msg.method in this.notifications) {
           this.notifications[msg.method].emit(msg.method, msg.params);

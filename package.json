@@ -1,10 +1,9 @@
 {
   "name": "clightningjs",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "Plugins for C-lightning, a Lightning Network implementation. Also contains an RPC wrapper.",
   "main": "src/plugin.js",
   "scripts": {
-    "test": "lightningd --testnet --lightning-dir=$PWD/test-lightning-dir --plugin=$PWD/test/plugin.js # You can try the test plugin commands with the CLI"
   },
   "repository": {
     "type": "git",

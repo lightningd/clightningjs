@@ -131,7 +131,7 @@ class Plugin {
     this.hooks[name] = callback;
   }
 
-  // The notifications are notifications that are real notifications :-)
+  // Notifications are emitted as events
   subscribe (name) {
     this.notifications[name] = new Notification();
   }
@@ -148,7 +148,6 @@ class Plugin {
     }
     message.split('\n').forEach((line) => {
       if (line) {
-        // Note that this is async and not awaited
         this._writeJsonrpcNotification('log', {level: level, message: line});
       }
     });

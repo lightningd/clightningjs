@@ -5,10 +5,6 @@
 ```bash
 npm install clightningjs --save
 ```
-If you have a running Bitcoin testnet node you can try out the test plugin at [test/plugin.js](test/plugin.js) :
-```bash
-npm test
-```
 
 ## Usage
 

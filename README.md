@@ -46,7 +46,7 @@ async function sayBye(params) {
   return Promise.resolve('Bye bye');
 }
 
-test.addMethod('bye', sayBye, '', 'If you launch me, I\'ll say good bye');
+helloPlugin.addMethod('bye', sayBye, '', 'If you launch me, I\'ll say good bye');
 helloPlugin.start();
 ```
 
@@ -59,7 +59,7 @@ const Plugin = require('clightningjs');
 const helloPlugin = new Plugin();
 
 async function sayBye(params) {
-  return Promise.resolve('Bye bye ' + test.options['byename'].value);
+  return Promise.resolve('Bye bye ' + helloPlugin.options['byename'].value);
 }
 
 helloPlugin.addOption('byename', 'continuum', 'The name of whow I should say bye to', 'string');
@@ -98,8 +98,8 @@ function useLessBackup(params) {
   return true;
 }
 
-test.addHook('db_write', useLessBackup);
-test.start();
+dbBackup.addHook('db_write', useLessBackup);
+dbBackup.start();
 ```
 
 ## More

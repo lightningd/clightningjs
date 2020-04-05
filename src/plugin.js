@@ -98,12 +98,13 @@ class Plugin {
     }
   }
 
-  async _writeJsonrpcResponse (result, id) {
+  async _writeJsonrpcResponse (result, id, isError) {
     const payload = {
       jsonrpc: '2.0',
-      id: id,
-      result: result
+      id: id
     };
+    if (isError) payload.error = result;
+    else payload.result = result;
     const response = JSON.stringify(payload);
     try {
       await this._write(response);
@@ -205,11 +206,14 @@ class Plugin {
           });
           continue;
         }
-        this.methods.forEach((m) => {
+        this.methods.forEach(async (m) => {
           if (m.name === msg.method) {
-            Promise.resolve(m.main(msg.params)).then(async (response) => {
+            try {
+              const response = await m.main(msg.params)
               await this._writeJsonrpcResponse(response, msg.id);
-            });
+            } catch (error) {
+              await this._writeJsonrpcResponse({code: -32603, message: error.message}, msg.id, true);
+            }
           }
         });
       }

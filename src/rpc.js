@@ -41,13 +41,30 @@ class RpcWrapper {
     // Allow the fd connection to error if ran a long period of time
     // Allow six by hour (high probability to be wrong here)
     setInterval(() => this.allowedErrors++, 1000 * 60 * 30);
+
+    this.buffer = '';
+  }
+
+  async readResponse (chunk, resolve, reject) {
+    this.buffer += chunk;
+    try {
+      const res = JSON.parse(this.buffer);
+      // We didn't raise, we got the entire response we were waiting for.
+      this.buffer = '';
+      resolve(res);
+    } catch (e) {
+      this.rpc.once('data', (chunk) => {
+        this.readResponse(chunk, resolve, reject);
+      });
+    }
   }
 
   async _jsonRpcRequest (data) {
     return new Promise((resolve, reject) => {
       this.rpc.write(data);
-      this.rpc.once('data', (d) => {
-        resolve(d);
+      this.rpc.once('data', (chunk) => {
+        // lightningd may send the result in multiple chunks
+        this.readResponse(chunk, resolve, reject);
       });
     });
   }
@@ -62,7 +79,13 @@ class RpcWrapper {
     };
 
     const response = await this._jsonRpcRequest(JSON.stringify(request))
-    return JSON.parse(response).result;
+    if (response.hasOwnProperty('error')) {
+      throw new Error('Calling \''+method+'\' with params \''+params+'\' returned \''+response.error+'\'');
+    } else if (!response.hasOwnProperty('result')) {
+      throw new Error('Got a non-JSONRPC2 response \''+response+'\' when calling \''+method+'\' with params \''+params+'\' returned \''+response.error+'\'');
+    }
+
+    return response.result;
   }
 
   restoreSocket () {

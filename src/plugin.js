@@ -23,7 +23,9 @@ class Plugin {
   // Beware with writing on stdout !
   // https://nodejs.org/api/process.html#process_a_note_on_process_i_o
   async _write (content) {
-    // Could have been a fs writing to 1 ?
+    // We append \n\n, not that is still mandatory but it's way more
+    // readable to a human debugger !
+    content += '\n\n';
     if (!process.stdout.write(content)) {
       return new Promise((resolve, reject) => {
         process.stdout.once('drain', resolve());
@@ -161,6 +163,7 @@ class Plugin {
     while (chunk = process.stdin.read()) {
       // Ok so process.stdin.read() can actually return a chunk with multiple
       // lines.
+      // FIXME: don't rely on lightningd's \n\n !!
       const lines = chunk.split('\n\n');
       for (const i in lines) {
         if (!lines[i]) continue;

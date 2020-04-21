@@ -25,7 +25,7 @@ test.testRpc = async function (params) {
 
 function useLessBackup(params) {
   fs.writeFile('logDb', params.writes, () => {});
-  return true;
+  return {'result': 'continue'};
 }
 
 function log(params) {

@@ -98,7 +98,7 @@ class Plugin {
     }
   }
 
-  async _writeJsonrpcResponse (result, id, isError) {
+  async _writeJsonrpcResponse (result, id, isError=false) {
     const payload = {
       jsonrpc: '2.0',
       id: id

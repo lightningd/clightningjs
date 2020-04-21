@@ -1,5 +1,5 @@
 # clightningjs
-[C-lightning](https://github.com/ElementsProject/lightning) [plugin](https://lightning.readthedocs.io/PLUGINS.html) library for nodejs, without high voltage sign
+[C-lightning](https://github.com/ElementsProject/lightning) [plugin](https://lightning.readthedocs.io/PLUGINS.html) library for nodejs
 
 ## Installation
 ```bash

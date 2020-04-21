@@ -15,6 +15,7 @@ npm install clightningjs --save
 - [Notifications](#notifications-subscription)
 - [Hooks](#hooks-subscription)
 - [Advanced usage](#more)
+- [Changelog](CHANGELOG.md)
 
 ### Methods
 A method should take a JSON array as parameter and return either a valid JSON-encodable value :

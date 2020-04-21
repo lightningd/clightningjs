@@ -7,35 +7,52 @@ class RpcWrapper {
       throw new Error('The RPC wrapper needs a socket path.');
     }
     this.socketPath = socketPath;
+    // TODO: wait for the 'connect' event ?
     this.rpc = net.createConnection({ path: this.socketPath });
     this.id = 0;
     this.allowedErrors = 10;
 
     // Reconnect on timeout
-    this.rpc.on('timeout', () => {
+    this.rpc.on('timeout', async () => {
       this.rpc.destroy();
-      this.restoreSocket();
+      try {
+        await this.restoreSocket();
+      } catch (e) {
+        process.exit();
+      }
     });
     // Handle errors
-    this.rpc.on('error', (e) => {
+    this.rpc.on('error', async (e) => {
       if (this.allowedErrors > 0) {
-        this.restoreSocket();
+        try {
+          await this.restoreSocket();
+        } catch (e) {
+          process.exit();
+        }
       } else {
         throw e;
       }
     });
-    this.rpc.on('close', (hadError) => {
+    this.rpc.on('close', async (hadError) => {
       if (hadError === true && this.allowedErrors <= 0) {
           throw new Error('An unexpected failure caused the socket ' + this.socketPath + ' to close.');
       } else {
         this.rpc.destroy();
-        this.restoreSocket();
+        try {
+          await this.restoreSocket();
+        } catch (e) {
+          process.exit();
+        }
       }
     });
-    this.rpc.on('error', (e) => {
+    this.rpc.on('error', async (e) => {
       fs.writeFile('log', e, () => {});
       this.rpc.destroy();
-      this.restoreSocket();
+      try {
+        await this.restoreSocket();
+      } catch (e) {
+        process.exit();
+      }
     });
 
     // Allow the fd connection to error if ran a long period of time
@@ -88,10 +105,15 @@ class RpcWrapper {
     return response.result;
   }
 
-  restoreSocket () {
-    this.rpc.destroy();
-    this.rpc = net.createConnection({ path: this.socketPath });
-    this.allowedErrors--;
+  async restoreSocket () {
+    return new Promise((resolve, reject) => {
+      this.rpc.destroy();
+      this.allowedErrors--;
+      this.rpc = net.createConnection({ path: this.socketPath });
+      this.rpc.on('connect', () => resolve());
+      this.rpc.on('error', () => reject());
+      this.rpc.on('timeout', () => reject());
+    });
   }
 }
 

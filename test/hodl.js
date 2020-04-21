@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-const assert = require('assert');
 const EventEmitter = require('events');
 const fs = require('fs');
 const Plugin = require('../src/plugin.js');

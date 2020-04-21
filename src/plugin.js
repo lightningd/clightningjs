@@ -6,7 +6,7 @@ const RpcWrapper = require('./rpc.js');
 class Notification extends EventEmitter {};
 
 class Plugin {
-  constructor (dynamic) {
+  constructor (params) {
     // name: { type: "", default: "", description: "" }
     this.options = {};
     // RpcMethods
@@ -17,7 +17,18 @@ class Plugin {
     this.hooks = {};
     this.rpc = undefined;
     // Plugins are dynamic by default
-    this.dynamic = dynamic || true;
+    this.dynamic = true;
+    if (typeof params != 'undefined') {
+      // Backward compat
+      // TODO: Make sure nobody relies on it anymore
+      if (typeof params === 'boolean') {
+        this.dynamic = params;
+      }
+      // New behaviour
+      if (params.hasOwnProperty('dynamic')) {
+        this.dynamic = params.dynamic;
+      }
+    }
   }
 
   // Beware with writing on stdout !
@@ -25,7 +36,7 @@ class Plugin {
   async _write (content) {
     // We append \n\n, not that is still mandatory but it's way more
     // readable to a human debugger !
-    content += '\n\n';
+    content += '\n';
     if (!process.stdout.write(content)) {
       return new Promise((resolve, reject) => {
         process.stdout.once('drain', resolve());

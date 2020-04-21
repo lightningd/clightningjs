@@ -89,13 +89,7 @@ class Plugin {
       params: params,
     }
     const notif = JSON.stringify(payload);
-    try {
-      await this._write(notif);
-    } catch (e) {
-      this.log('Error while writing JSONRPC notification (\''+notif+'\') to lightningd',
-               'error');
-      throw e;
-    }
+    await this._write(notif);
   }
 
   async _writeJsonrpcResponse (result, id, isError=false) {
@@ -106,13 +100,7 @@ class Plugin {
     if (isError) payload.error = result;
     else payload.result = result;
     const response = JSON.stringify(payload);
-    try {
-      await this._write(response);
-    } catch (e) {
-      this.log('Error while writing JSONRPC response (\''+response+'\') to lightningd',
-               'error');
-      throw e;
-    }
+    await this._write(response);
   }
 
   // Add a fresh JSONRPC method accessible from lightningd

@@ -128,7 +128,7 @@ class Plugin {
 
   // Add a startup option to lightningd
   addOption (name, defaultValue, description, type) {
-    if (!name || !defaultValue || !description) {
+    if (!name || defaultValue === null || !description) {
       throw new Error('You need to pass at least a name, default value and description for the option');
     }
     this.options[name] = {
